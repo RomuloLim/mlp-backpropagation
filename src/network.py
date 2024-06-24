@@ -42,9 +42,31 @@ def transfer(activation):
             return transfer_sigmoid(activation)
 
 
+# Derivative of the sigmoid function
+def transfer_derivative_sigmoid(output):
+    return output * (1.0 - output)
+
+
+# Derivative of the tanh function
+def transfer_derivative_tanh(output):
+    return 1.0 - output ** 2
+
+
+# Derivative of the transfer function
+def transfer_derivative(output):
+    match transfer_neuron_function:
+        case 'sigmoid':
+            return transfer_derivative_sigmoid(output)
+        case 'tanh':
+            return transfer_derivative_tanh(output)
+        case _:
+            return transfer_derivative_sigmoid(output)
+
+
 # Forward propagate input to a network output
 def forward_propagate(network, row):
     inputs = row
+
     for layer in network:
         new_inputs = []
         for neuron in layer:
@@ -52,6 +74,7 @@ def forward_propagate(network, row):
             neuron['output'] = transfer(activation)
             new_inputs.append(neuron['output'])
         inputs = new_inputs
+
     return inputs
 
 
