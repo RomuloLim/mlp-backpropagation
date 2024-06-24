@@ -33,12 +33,13 @@ def transfer_tanh(activation):
 
 # Transfer neuron activation
 def transfer(activation):
-    if transfer_neuron_function == 'sigmoid':
-        return transfer_sigmoid(activation)
-    elif transfer_neuron_function == 'tanh':
-        return transfer_tanh(activation)
-    else:
-        return transfer_sigmoid(activation)
+    match transfer_neuron_function:
+        case 'sigmoid':
+            return transfer_sigmoid(activation)
+        case 'tanh':
+            return transfer_tanh(activation)
+        case _:
+            return transfer_sigmoid(activation)
 
 
 # Forward propagate input to a network output
