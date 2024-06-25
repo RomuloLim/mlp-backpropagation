@@ -1,5 +1,7 @@
 from random import seed
 from random import random
+import matplotlib.pyplot as plt
+import networkx as nx
 import math
 
 
@@ -112,6 +114,7 @@ def update_weights(network, row, l_rate):
 
 # Train a network for a fixed number of epochs
 def train_network(network, train, l_rate, n_epoch, n_outputs):
+    errors = []
     for epoch in range(n_epoch):
         sum_error = 0
         for row in train:
@@ -122,6 +125,8 @@ def train_network(network, train, l_rate, n_epoch, n_outputs):
             backward_propagate_error(network, expected)
             update_weights(network, row, l_rate)
         print('>epoch=%d, lrate=%.3f, error=%.3f' % (epoch, l_rate, sum_error))
+        errors.append(sum_error)
+    return errors
 
 
 seed(1)
@@ -149,19 +154,59 @@ transfer_neuron_function = 'sigmoid'
 # print(layer)
 
 # Test training backprop algorithm
-dataset = [[2.7810836, 2.550537003, 0],
-           [1.465489372, 2.362125076, 0],
-           [3.396561688, 4.400293529, 0],
-           [1.38807019, 1.850220317, 0],
-           [3.06407232, 3.005305973, 0],
-           [7.627531214, 2.759262235, 1],
-           [5.332441248, 2.088626775, 1],
-           [6.922596716, 1.77106367, 1],
-           [8.675418651, -0.242068655, 1],
-           [7.673756466, 3.508563011, 1]]
+dataset = [[2.7811836, 2.7810836, 2.550537003, 0],
+           [1.465481372, 1.465489372, 2.362125076, 0],
+           [3.396561688, 3.396561688, 4.400293529, 0],
+           [1.38801019, 1.38807019, 1.850220317, 0],
+           [3.06401232, 3.06407232, 3.005305973, 0],
+           [7.627531214, 7.627531214, 2.759262235, 1],
+           [5.332441248, 5.332441248, 2.088626775, 1],
+           [6.922591716, 6.922596716, 1.77106367, 1],
+           [8.675411651, 8.675418651, -0.242068655, 1],
+           [7.673751466, 7.673756466, 3.508563011, 1]]
+
 n_inputs = len(dataset[0]) - 1
 n_outputs = len(set([row[-1] for row in dataset]))
+
 network = initialize_network(n_inputs, 2, n_outputs)
-train_network(network, dataset, 0.5, 20, n_outputs)
+
+# Train the network and get the errors
+errors = train_network(network, dataset, 0.5, 20, n_outputs)
+
+# Plot the errors
+plt.plot(errors)
+plt.grid()
+plt.xlabel('Epoch')
+plt.ylabel('Error')
+plt.title('Aprendizado da rede neural')
+plt.show()
+
+
+def draw_network(network):
+    G = nx.DiGraph()
+    for i, layer in enumerate(network):
+        for j, neuron in enumerate(layer):
+            for k, weight in enumerate(neuron['weights']):
+                from_node = (i - 1, k) if i > 0 else k
+                to_node = (i, j)
+                G.add_node(from_node, layer=i - 1 if i > 0 else 'input')
+                G.add_node(to_node, layer=i)
+                G.add_edge(from_node, to_node, weight=weight)
+
+    pos = nx.multipartite_layout(G, subset_key="layer", scale=2)
+    # o valor escrito nas linhas está sobrepondo outros, correção:
+    for key, value in pos.items():
+        pos[key] = (value[0], value[1] + 0.1)
+
+    nx.draw(G, pos, with_labels=True, node_size=1000, node_color='skyblue', font_size=10, font_weight='bold',
+            font_color='black', edge_color='gray', width=1.5, alpha=0.9, arrowsize=10)
+
+    labels = nx.get_edge_attributes(G, 'weight')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+    plt.show()
+
+
+draw_network(network)
+
 for layer in network:
     print(layer)
