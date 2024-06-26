@@ -113,6 +113,12 @@ def update_weights(network, row, l_rate):
             neuron['weights'][-1] -= l_rate * neuron['delta']
 
 
+# Make a prediction with a network
+def predict(network, row):
+    outputs = forward_propagate(network, row)
+    return outputs.index(max(outputs))
+
+
 # Train a network for a fixed number of epochs
 def train_network(network, train, l_rate, n_epoch, n_outputs):
     errors = []
@@ -177,10 +183,10 @@ dataset = use_dataset()
 n_inputs = len(dataset[0]) - 1
 n_outputs = len(set([row[-1] for row in dataset]))
 
-network = initialize_network(n_inputs, 2, n_outputs)
+network = initialize_network(n_inputs, 3, n_outputs)
 
 # Train the network and get the errors
-errors = train_network(network, dataset, 0.045, 300, n_outputs)
+errors = train_network(network, dataset, 0.024, 3000, n_outputs)
 
 # Plot the errors
 plt.plot(errors)
@@ -192,5 +198,19 @@ plt.show()
 
 draw_network(network)
 
-for layer in network:
-    print(layer)
+success = 0
+errors = 1
+
+for row in dataset:
+    prediction = predict(network, row)
+    if prediction == row[-1]:
+        success += 1
+    else:
+        errors += 1
+    print('Expected=%d, Got=%d' % (row[-1], prediction))
+
+print('Success: ', success)
+print('Errors: ', errors)
+
+# for layer in network:
+#     print(layer)
