@@ -5,6 +5,7 @@ import networkx as nx
 import math
 import pandas as pd
 
+
 # Initialize a network
 def initialize_network(n_inputs, n_hidden, n_outputs):
     network = list()
@@ -129,69 +130,6 @@ def train_network(network, train, l_rate, n_epoch, n_outputs):
     return errors
 
 
-seed(1)
-transfer_neuron_function = 'sigmoid'
-# network = initialize_network(2, 1, 2)
-#
-# print('=== LAYERS ===')
-# for layer in network:
-#     print(layer)
-#
-# print('\n==============')
-#
-# print('=== FORWARD PROPAGATE ===')
-# row = [1, 0, None]
-# output = forward_propagate(network, row)
-# print(output)
-#
-# print('\n==============')
-#
-# print('=== BACK PROPAGATE ===')
-# expected = [0, 1]
-#
-# backward_propagate_error(network, expected)
-#
-# print(layer)
-
-# Test training backprop algorithm
-#dataset = [[2.7811836, 2.7810836, 2.550537003, 0],
-#           [1.465481372, 1.465489372, 2.362125076, 0],
-#           [3.396561688, 3.396561688, 4.400293529, 0],
-#           [1.38801019, 1.38807019, 1.850220317, 0],
-#           [3.06401232, 3.06407232, 3.005305973, 0],
-#           [7.627531214, 7.627531214, 2.759262235, 1],
-#           [5.332441248, 5.332441248, 2.088626775, 1],
-#           [6.922591716, 6.922596716, 1.77106367, 1],
-#           [8.675411651, 8.675418651, -0.242068655, 1],
-#           [7.673751466, 7.673756466, 3.508563011, 1]]
-dataset = pd.read_csv('iris.csv').values
-
-flowers = {
-    'Setosa': 0,
-    'Versicolor': 1,
-    'Virginica': 2
-}
-
-for data in dataset:
-    data[-1] = flowers[data[-1]]
-
-n_inputs = len(dataset[0]) - 1
-n_outputs = len(set([row[-1] for row in dataset]))
-
-network = initialize_network(n_inputs, 2, n_outputs)
-
-# Train the network and get the errors
-errors = train_network(network, dataset, 0.5, 20, n_outputs)
-
-# Plot the errors
-plt.plot(errors)
-plt.grid()
-plt.xlabel('Epoch')
-plt.ylabel('Error')
-plt.title('Aprendizado da rede neural')
-plt.show()
-
-
 def draw_network(network):
     G = nx.DiGraph()
     for i, layer in enumerate(network):
@@ -215,6 +153,42 @@ def draw_network(network):
     nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
     plt.show()
 
+
+def use_dataset():
+    # Flowers mapping
+    flowers = {
+        'Setosa': 0,
+        'Versicolor': 1,
+        'Virginica': 2
+    }
+
+    csv_data = pd.read_csv('iris.csv').values
+
+    for data in csv_data:
+        data[-1] = flowers[data[-1]]
+
+    return csv_data
+
+
+seed(1)
+
+transfer_neuron_function = 'sigmoid'
+dataset = use_dataset()
+n_inputs = len(dataset[0]) - 1
+n_outputs = len(set([row[-1] for row in dataset]))
+
+network = initialize_network(n_inputs, 2, n_outputs)
+
+# Train the network and get the errors
+errors = train_network(network, dataset, 0.045, 300, n_outputs)
+
+# Plot the errors
+plt.plot(errors)
+plt.grid()
+plt.xlabel('Epoch')
+plt.ylabel('Error')
+plt.title('Aprendizado da rede neural')
+plt.show()
 
 draw_network(network)
 
